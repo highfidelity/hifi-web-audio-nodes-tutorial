@@ -1,0 +1,23 @@
+{
+    "name": "spatial-audio-tutorial",
+    "description": "High Fidelity Spatial Audio Tutorial",
+    "author": "High Fidelity, Inc.",
+    "license": "",
+    "version": "1.0.0",
+    "main": "index.js",
+    "type": "module",
+    "scripts": {
+        "install-local-audio-nodes": "npm install file:../hifi-web-audio-nodes --no-save",
+        "lint": "eslint .",
+        "build": "node scripts/build.js",
+        "serve": "node server.js"
+    },
+    "dependencies": {
+        "agora-rtc-sdk-ng": "^4.17.2",
+        "express": "^4.18.2",
+        "hifi-audio-nodes": "^1.0.0-0"
+    },
+    "devDependencies": {
+        "eslint": "^8.37.0"
+    }
+}
