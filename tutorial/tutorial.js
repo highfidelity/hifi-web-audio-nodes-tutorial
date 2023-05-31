@@ -413,8 +413,7 @@ async function playSpatial(play) {
         localSpatialSound.loop = true;
         localSpatialSound.connect(localHrtfInput);
 
-        //const azimuth = Math.random() * 2 * Math.PI;
-        const azimuth = -0.5 * Math.PI;
+        const azimuth = Math.random() * 2 * Math.PI;
         const distance = 4.0;
         //localHrtfInput.setPosition(azimuth, distance);
         localHrtfInput.x = position.x + distance * Math.sin(-azimuth);
