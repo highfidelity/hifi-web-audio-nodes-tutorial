@@ -718,7 +718,7 @@ to use 48kHz files to avoid Web Audio resampling them.
 This plays a WAV file as a local audio stream through the `HRTFOutput` node so that it is spatialized.
 
 Add an `owl.wav` file beside your `tutorial.js` file.
-You can find an owl file in the `spatial-audio-room-demo` repo at: [owl.wav](https://github.com/highfidelity/hifi-web-audio-nodes-tutorial/blob/master/tutorial/owl.wav)
+You can find an owl file in the `hifi-web-audio-nodes-tutorial` repo at: [owl.wav](https://github.com/highfidelity/hifi-web-audio-nodes-tutorial/blob/master/tutorial/owl.wav)
 
 Add UI:
 ```
@@ -854,7 +854,7 @@ Now, you should be able to hear the sound play spatially, at a different positio
 This plays a WAV file as local audio stream through the Limiter node to preserve high dynamic range and AEC.
 
 Add a `thunder.wav` file beside your `tutorial.js` file.
-You can find such a file in the High Fidelity's `spatial-audio-room-demo` repo at: [thunder.wav](https://github.com/highfidelity/hifi-web-audio-nodes-tutorial/blob/master/tutorial/thunder.wav)
+You can find such a file in the `hifi-web-audio-nodes-tutorial` repo at: [thunder.wav](https://github.com/highfidelity/hifi-web-audio-nodes-tutorial/blob/master/tutorial/thunder.wav)
 
 Add UI:
 ```
