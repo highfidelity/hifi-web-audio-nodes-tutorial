@@ -1,9 +1,12 @@
-# HiFi Spatial Audio Tutorial
+# High Fidelity Web AudioNodes
 
 This tutorial uses the High Fidelity Web Audio Nodes SDK and Agora RTC SDK to create a single page application that sends and
 receives audio among app users. You will need an Agora account and project in order to run the app.
 
 The app is hosted locally using Node.js and Express. Alternatively, you can host the app on your own Web server.
+
+You may find the files used in this tutorial on GitHub at: https://github.com/highfidelity/hifi-web-audio-nodes-tutorial
+
 
 ## 0: Prerequisites
 
@@ -33,7 +36,7 @@ Add the following line to `package.json`:
 ```
 
 
-## 2: Set up a local web server to host the single page application
+## 2: Set up a local Web server to host the single page application
 
 Install Express to use as a local Web server:
 ```
@@ -714,6 +717,9 @@ to use 48kHz files to avoid Web Audio resampling them.
 
 This plays a WAV file as a local audio stream through the `HRTFOutput` node so that it is spatialized.
 
+Add an `owl.wav` file beside your `tutorial.js` file.
+You can find an owl file in the `spatial-audio-room-demo` repo at: [owl.wav](https://github.com/highfidelity/hifi-web-audio-nodes-tutorial/blob/master/tutorial/owl.wav)
+
 Add UI:
 ```
 <p>
@@ -846,6 +852,9 @@ Now, you should be able to hear the sound play spatially, at a different positio
 ### 9.2: Play local audio non-spatially
 
 This plays a WAV file as local audio stream through the Limiter node to preserve high dynamic range and AEC.
+
+Add a `thunder.wav` file beside your `tutorial.js` file.
+You can find such a file in the High Fidelity's `spatial-audio-room-demo` repo at: [thunder.wav](https://github.com/highfidelity/hifi-web-audio-nodes-tutorial/blob/master/tutorial/thunder.wav)
 
 Add UI:
 ```
