@@ -5,7 +5,7 @@ receives audio among app users. You will need an Agora account and project in or
 
 The app is hosted locally using Node.js and Express. Alternatively, you can host the app on your own Web server.
 
-You may find the files used in this tutorial on GitHub at: https://github.com/highfidelity/hifi-web-audio-nodes-tutorial
+You can find the files used in this tutorial on GitHub at: https://github.com/highfidelity/hifi-web-audio-nodes-tutorial
 
 
 ## 0: Prerequisites
