@@ -546,7 +546,7 @@ async function ensureAudioContext() {
 
     microphoneNode = audioContext.createMediaStreamSource(microphoneStream);
     noiseGate = new HiFiAudioNodes.NoiseGate(audioContext);
-    noiseGate.setThreshold(thresholdInput.value);
+    noiseGate.setThreshold(parseFloat(thresholdInput.value));
     gatedNode = audioContext.createMediaStreamDestination();
     microphoneNode.connect(noiseGate).connect(gatedNode);
 
@@ -597,8 +597,8 @@ thresholdInput.addEventListener('change', () => {
 });
 
 function onThresholdChange() {
-    const threshold = Math.max(-96, Math.min(thresholdInput.value, 0));
-    thresholdInput.value = threshold;
+    const threshold = Math.max(-96, Math.min(parseFloat(thresholdInput.value), 0));
+    thresholdInput.value = String(threshold);
     if (gatedNode) {
         noiseGate.setThreshold(threshold);
     }
@@ -625,7 +625,7 @@ muteInput.addEventListener('change', () => {
 
 function onMuteChange() {
     if (gatedNode) {
-        noiseGate.setThreshold(muteInput.checked ? 0 : thresholdInput.value);
+        noiseGate.setThreshold(muteInput.checked ? 0 : parseFloat(thresholdInput.value));
     }
 }
 ```
@@ -643,8 +643,8 @@ function onThresholdChange() {
 
 async function ensureAudioContext() {
     ...
-    //noiseGate.setThreshold(thresholdInput.value);
-    noiseGate.setThreshold(muteInput.checked ? 0 : thresholdInput.value);
+    //noiseGate.setThreshold(parseFloat(thresholdInput.value));
+    noiseGate.setThreshold(muteInput.checked ? 0 : parseFloat(thresholdInput.value));
     ...
 }
 ```
