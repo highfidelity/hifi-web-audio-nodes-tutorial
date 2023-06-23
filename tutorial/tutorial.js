@@ -106,10 +106,7 @@ function deleteAudioContext() {
     hrtfOutput = null;
     limiter = null;
 
-    //HiFiAudioNodes.shutdownHRTF();
-    if (isMetadataSupported) {
-        HiFiAudioNodes.shutdownHRTF();
-    }
+    HiFiAudioNodes.shutdownHRTF();
 
     audioElement.pause();
     audioElement.srcObject = null;

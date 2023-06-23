@@ -991,17 +991,6 @@ async function ensureAudioContext() {
     ...
 ```
 
-Modify audio context tear down:
-```
-async function tearDownAudioContext() {
-    ...
-    //await HiFiAudioNodes.tearDownHRTF(audioContext);
-    if (isMetadataSupported) {
-        HiFiAudioNodes.shutdownHRTF();
-    }
-    ...
-```
-
 ### 10.3: Send your position and orientation to other users
 
 Add UI for setting your position and orientation:
