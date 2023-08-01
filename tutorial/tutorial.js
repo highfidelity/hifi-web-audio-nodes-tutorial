@@ -14,7 +14,7 @@ let isConnected = false;
 let audioContext;
 let microphoneStream;
 let microphoneNode;
-let noiseGate;
+let noiseSuppression;
 let gatedNode;
 const hrtfInputs = new Map();
 let localHrtfInput;
@@ -70,11 +70,12 @@ async function ensureAudioContext() {
     });
 
     microphoneNode = audioContext.createMediaStreamSource(microphoneStream);
-    noiseGate = new HiFiAudioNodes.NoiseGate(audioContext);
-    //noiseGate.setThreshold(parseFloat(thresholdInput.value));
-    noiseGate.setThreshold(muteInput.checked ? 0 : parseFloat(thresholdInput.value));
+    noiseSuppression = new HiFiAudioNodes.NoiseSuppression(audioContext);
+    noiseSuppression.setMode(nsInput.checked ? 'suppress' : 'gate');
+    noiseSuppression.setThreshold(parseFloat(thresholdInput.value));
+    noiseSuppression.setMuted(muteInput.checked);
     gatedNode = audioContext.createMediaStreamDestination();
-    microphoneNode.connect(noiseGate).connect(gatedNode);
+    microphoneNode.connect(noiseSuppression).connect(gatedNode);
 
     microphoneTrack = AgoraRTC.createCustomAudioTrack({
         mediaStreamTrack: gatedNode.stream.getAudioTracks()[0]
@@ -91,11 +92,11 @@ function deleteAudioContext() {
     microphoneTrack.close();
     microphoneTrack = null;
 
-    microphoneNode.disconnect(noiseGate);
-    noiseGate.disconnect(gatedNode);
+    microphoneNode.disconnect(noiseSuppression);
+    noiseSuppression.disconnect(gatedNode);
     microphoneStream = null;
     microphoneNode = null;
-    noiseGate = null;
+    noiseSuppression = null;
     gatedNode = null;
 
     localHrtfInput.disconnect(hrtfOutput);
@@ -220,9 +221,21 @@ function onUserUnpublished(user) {
 }
 
 
+const nsInput = document.getElementById('ns');
+const gateInput = document.getElementById('gate');
 const thresholdInput = document.getElementById('threshold');
 const muteInput = document.getElementById('mute');
 const aecInput = document.getElementById('aec');
+
+nsInput.addEventListener('change', () => {
+    onSuppressChange(true);
+    console.log('Suppression changed: suppress');
+});
+
+gateInput.addEventListener('change', () => {
+    onSuppressChange(false);
+    console.log('Suppression changed: gate');
+});
 
 thresholdInput.addEventListener('change', () => {
     onThresholdChange();
@@ -239,18 +252,23 @@ aecInput.addEventListener('change', () => {
     console.log('AEC changed:', aecInput.checked);
 });
 
+function onSuppressChange(isSuppress) {
+    if (noiseSuppression) {
+        noiseSuppression.setMode(isSuppress ? 'suppress' : 'gate');
+    }
+}
+
 function onThresholdChange() {
     const threshold = Math.max(-96, Math.min(parseFloat(thresholdInput.value), 0));
     thresholdInput.value = String(threshold);
-    if (gatedNode) {
-        //noiseGate.setThreshold(threshold);
-        noiseGate.setThreshold(muteInput.checked ? 0 : threshold);
+    if (noiseSuppression) {
+        noiseSuppression.setThreshold(threshold);
     }
 }
 
 function onMuteChange() {
-    if (gatedNode) {
-        noiseGate.setThreshold(muteInput.checked ? 0 : parseFloat(thresholdInput.value));
+    if (noiseSuppression) {
+        noiseSuppression.setMuted(muteInput.checked);
     }
  }
 
@@ -269,9 +287,9 @@ function onMuteChange() {
             },
             video: false
         });
-        microphoneNode.disconnect(noiseGate);
+        microphoneNode.disconnect(noiseSuppression);
         microphoneNode = audioContext.createMediaStreamSource(newMicrophoneStream);
-        microphoneNode.connect(noiseGate);
+        microphoneNode.connect(noiseSuppression);
         microphoneStream = newMicrophoneStream;
     }
 }
