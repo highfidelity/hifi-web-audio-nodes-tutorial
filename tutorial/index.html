@@ -10,7 +10,12 @@
     <button id="join" disabled>Join</button>
     <button id="leave" disabled>Leave</button>
     <span id="metadata-not-supported" style="display: none">Metadata not supported!</span>
-    <p>Mic threshold: <input id="threshold" type="number" min="-96" max="0" value="-40" step="1" /></p>
+    <p>
+        Suppression:<br />
+        <input type="radio" id="ns" name="suppression" value="suppress" checked> NS<br />
+        <input type="radio" id="gate" name="suppression" value="gate"> Gate
+        - Threshold: <input id="threshold" type="number" min="-96" max="0" value="-40" step="1" />
+    </p>
     <p><input id="mute" type="checkbox" /> Mute</p>
     <p><input id="aec" type="checkbox" /> AEC</p>
     <p>
