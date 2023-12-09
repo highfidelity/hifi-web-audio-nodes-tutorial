@@ -3,36 +3,74 @@
 <head>
     <meta charset="utf-8" />
     <title>HiFi Spatial Audio Tutorial</title>
+    <script type="importmap">
+        {
+          "imports": {
+            "three": "https://unpkg.com/three@v0.149.0/build/three.module.js",
+            "three/addons/": "https://unpkg.com/three@v0.149.0/examples/jsm/"
+          }
+        }
+      </script>
+    <style>
+        body {
+            flex-direction: row;
+            display: flex;
+            gap: 10px;
+            background-color: black;
+        }
+        p {
+            align-items: flex-start;
+        }
+        div {
+            display: flex;
+            flex-direction: row;
+            gap: 60px;
+        }
+        div.position {
+            gap: 5px;
+            display: flex;
+            flex-direction: column;
+        }
+    </style>
 </head>
 <body>
-    <!--<p>HTML Hello World!</p>-->
-    <!--<button id="join">Join</button>-->
-    <button id="join" disabled>Join</button>
-    <button id="leave" disabled>Leave</button>
+    <canvas class="webgl"></canvas>
     <span id="metadata-not-supported" style="display: none">Metadata not supported!</span>
-    <p>
-        Suppression:<br />
-        <input type="radio" id="ns" name="suppression" value="suppress" checked> NS<br />
-        <input type="radio" id="gate" name="suppression" value="gate"> Gate
-        - Threshold: <input id="threshold" type="number" min="-96" max="0" value="-40" step="1" />
-    </p>
-    <p><input id="mute" type="checkbox" /> Mute</p>
-    <p><input id="aec" type="checkbox" /> AEC</p>
-    <p>
-        Position and orientation:
-        x: <input id="x" type="number" min="-10" max="10" value="0" step="1" />
-        y: <input id="y" type="number" min="-10" max="10" value="0" step="1" />
-        o: <input id="o" type="number" min="-3.1416" max="3.1416" value="0" step="0.31416" />
-    </p>
-    <p>
+    <div>
+    <div class="position">
+        <p style="color: rgb(225, 34, 34);">
+            Car:
+            x: <input id="x1" type="number" min="-10" max="10" value="-4.5" step="0.25" />
+            y: <input id="y1" type="number" min="-10" max="10" value="0.95" step="0.25" />
+            z: <input id="z1" type="number" min="-3.1416" max="3.1416" value="0.5" step="0.25" />
+        </p>
+        <p style="color: rgb(233, 189, 136);">
+            Dog:
+            x: <input id="x2" type="number" min="-10" max="10" value="0" step="0.25" />
+            y: <input id="y2" type="number" min="-10" max="10" value="-2.25" step="0.25" />
+            z: <input id="z2" type="number" min="-3.1416" max="3.1416" value="-1" step="0.25" />
+        </p>
+        <p style="color: rgb(157, 84, 224);">
+            Woman:
+            x: <input id="x3" type="number" min="-10" max="10" value="0.5" step="0.25" />
+            y: <input id="y3" type="number" min="-10" max="10" value="-0.75" step="0.25" />
+            z: <input id="z3" type="number" min="-3.1416" max="3.1416" value="0" step="0.25" />
+        </p></div>
+        <img id="image" src=" http://localhost:8080/IMG_5444.jpg" alt="image" width="250" height="160">
+        <!-- <div class="position">
+            <p>car original position:</p>
+            <p>car original position:</p> -->
+    </div>
+        <!-- //image here  -->
+    
+    
+    <!-- <p>
         Play local sounds:<br />
         <button id="stop-spatial" disabled>&#x23F8;</button>
         <button id="play-spatial" disabled>&#x23F5;</button>
         Spatial<br />
-        <button id="stop-non-spatial" disabled>&#x23F8;</button>
-        <button id="play-non-spatial" disabled>&#x23F5;</button>
-        Non-spatial
-    </p>
+
+    </p> -->
     <script type="module" src="tutorial.js"></script>
 </body>
 </html>
