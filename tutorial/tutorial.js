@@ -24,12 +24,13 @@ const {scene, sizes} = setupscene()
 
 
 const object1 = new THREE.Mesh(
-    new THREE.SphereGeometry(0.5, 16, 16),
+    new THREE.SphereGeometry(1.9, 16, 16),
     new THREE.MeshBasicMaterial({ color: '#00ff00' })
 )
 object1.position.x = position0.x
 object1.position.y = position0.y
 object1.position.z = position0.z
+
 
 const object2 = new THREE.Mesh(
     new THREE.SphereGeometry(0.5, 16, 16),
@@ -53,13 +54,18 @@ scene.add( new THREE.AmbientLight( 0x111122, 5 ) );
 
 
 
-let pointLight, pointLight2;
+let pointLight, pointLight1, pointLight2;
 pointLight = createLight( 0xCD6AE5 );
 scene.add( pointLight );
-
-pointLight.rotation.x = 1.16;
-pointLight2 = createLight( 0xff8888 );
+pointLight1 = createLight( 0x6AE5CD );
+scene.add( pointLight1 );
+pointLight2 = createLight( 0xE5CD6A );
 scene.add( pointLight2 );
+
+pointLight.position.set(position0.x,position0.y,position0.z)
+pointLight1.position.set(position1.x,position1.y,position1.z)
+pointLight2.position.set(position2.x,position2.y,position2.z)
+
 
 
 /**
@@ -207,6 +213,18 @@ const tick = () =>
 {
     const elapsedTime = clock.getElapsedTime()
     //animate objects
+    pointLight.position.x = position0.x
+    pointLight.position.z = -position0.y
+    pointLight.position.y = position0.z
+
+    pointLight1.position.x = position1.x
+    pointLight1.position.z = -position1.y
+    pointLight1.position.y = position1.z
+
+    pointLight2.position.x = position2.x
+    pointLight2.position.z = -position2.y
+    pointLight2.position.y = position2.z
+    
     object1.position.x = position0.x
     object1.position.z = -position0.y
     object1.position.y = position0.z
