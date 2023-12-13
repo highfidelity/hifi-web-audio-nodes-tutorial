@@ -1,9 +1,47 @@
 import * as THREE from 'three'
 import createTextGeometry from './textgeo.js';
-export default function setupscene (){
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js'
+export default function setupscene (canvas){
 
   const scene = new THREE.Scene()
+  const canva = canvas
   scene.background = new THREE.Color(0x000000)
+  const sizes = {
+    width: window.innerWidth*0.75,
+    height: window.innerHeight*0.9
+}
+  const camera = new THREE.PerspectiveCamera(75, sizes.width / sizes.height, 0.1, 100)
+camera.position.z = 10
+scene.add(camera)
+/**
+ * Sizes
+ */
+const mouse = new THREE.Vector2()
+window.addEventListener('mousemove',(event)=>
+{
+    mouse.x = event.clientX/sizes.width*2 - 1
+    mouse.y = -(event.clientY/sizes.height*2 -1)
+})
+window.addEventListener('resize', () =>
+{
+    // Update sizes
+    sizes.width = window.innerWidth*0.75
+    sizes.height = window.innerHeight*0.9
+    // Update camera
+    camera.aspect = sizes.width / sizes.height
+    camera.updateProjectionMatrix()
+    // Update renderer
+    renderer.setSize(sizes.width, sizes.height)
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
+})
+
+/**
+ * mouse
+ */
+
+// Controls
+const controls = new OrbitControls(camera, canva)
+controls.enableDamping = true
   
   createTextGeometry('X',scene,[14,-10,-15])
   createTextGeometry('Y',scene,[-15,9,-15])
@@ -22,10 +60,7 @@ export default function setupscene (){
   cylinder3.position.set(-15,-10,-0.5)
   scene.add( cylinder1,cylinder2,cylinder3 );
 
-  const sizes = {
-      width: window.innerWidth*0.75,
-      height: window.innerHeight*0.9
-  }
+
   const geometry = new THREE.BoxGeometry( 30, 20, 30 );
   const material = new THREE.MeshPhongMaterial( {
       color: 0xa0adaf,
@@ -42,6 +77,14 @@ export default function setupscene (){
   const mesh = new THREE.Mesh( geometry, material );
   mesh.receiveShadow = true;
   scene.add( mesh,pointer );
-
-  return {scene, sizes}
+  scene.add( new THREE.AmbientLight( 0x111122, 4 ) );
+  const renderer = new THREE.WebGLRenderer({
+    antialias: true,
+    canvas: canvas
+})
+renderer.setSize(sizes.width, sizes.height)
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.BasicShadowMap;
+  return {scene, sizes,camera, controls,mouse, renderer}
 }

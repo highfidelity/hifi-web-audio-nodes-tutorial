@@ -6,357 +6,210 @@ import './vendor/AgoraRTC_N-production.js';  // AgoraRTC
 import * as THREE from 'three'
 
 // import typefaceFont from 'three/examples/fonts/helvetiker_regular.typeface.json';
-import { OrbitControls } from 'three/addons/controls/OrbitControls.js'
+
 // import * as dat from 'lil-gui'
 import createLight from './scene.js';
 import setupscene from './basicscene.js';
+import createSphere from './createsphere.js';
+import soundMap from './SoundMap.js';
+import setupButtons from './setupButtons.js';
+//data input
+
+console.log(localStorage.getItem('results'))
+let demo_map = {'laughing':(0.49,0.58,0.23)}
+let names = ['glass_breaking','frog','dog','laughing','baby']
+
+function getaudiobyname(name){
+    let sound = soundMap[name]
+    return sound
+}
+
 
 let position = { x: 0, y: 0, o: 0 };
 let position0 = { x: -4.5, y: 0.95, z: 0.5 };
 let position1 = { x: 0, y: -2.25, z: -1 };
 let position2 = { x: 0.5, y: -0.75, z: 0 };
-// let scene, sizes;
+let position3 = { x: 0, y: 0, z: 0 };
+let position4 = { x: 1, y: 2, z: 3 };
+//some stable variable 
+let color0= '#bea6f5', color1 = '#1363DF', color2 = '#f5e595', color3 = '#E966A0', color4 = '#00FFCA';
+//all about the 2d interfaces =
+const { xInput0,yInput0,zInput0,
+        xInput1,yInput1,zInput1,
+        xInput2,yInput2,zInput2,
+        xInput3,yInput3,zInput3,
+        xInput4,yInput4,zInput4 } = setupButtons(document,names);
+let changecounter = document.getElementById('counter');
+let oldcounter = 0;
 
-// Canvas
+//all about the 3d setup
 const canvas = document.querySelector('canvas.webgl')
-const {scene, sizes} = setupscene()
-
-
-
-const object1 = new THREE.Mesh(
-    new THREE.SphereGeometry(1.9, 16, 16),
-    new THREE.MeshBasicMaterial({ color: '#00ff00' })
-)
-object1.position.x = position0.x
-object1.position.y = position0.y
-object1.position.z = position0.z
-
-
-const object2 = new THREE.Mesh(
-    new THREE.SphereGeometry(0.5, 16, 16),
-    new THREE.MeshBasicMaterial({ color: '#00ff00' })
-)
-object2.position.x = position1.x
-object2.position.y = position1.y
-object2.position.z = position1.z
-const object3 = new THREE.Mesh(
-    new THREE.SphereGeometry(0.5, 16, 16),
-    new THREE.MeshBasicMaterial({ color: '#000050' })
-)
-object3.position.x = position2.x
-object3.position.y = position2.y
-object3.position.z = position2.z
-
-
-scene.add(object1, object2, object3)
-scene.add( new THREE.AmbientLight( 0x111122, 5 ) );
-
-
-
-
-let pointLight, pointLight1, pointLight2;
-pointLight = createLight( 0xCD6AE5 );
-scene.add( pointLight );
-pointLight1 = createLight( 0x6AE5CD );
-scene.add( pointLight1 );
-pointLight2 = createLight( 0xE5CD6A );
-scene.add( pointLight2 );
-
-pointLight.position.set(position0.x,position0.y,position0.z)
-pointLight1.position.set(position1.x,position1.y,position1.z)
-pointLight2.position.set(position2.x,position2.y,position2.z)
-
-
-
-/**
- * raycaster
- */
+const {scene, sizes, camera, controls, mouse, renderer} = setupscene(canvas)
+let object0,object1,object2,object3,object4;
+object0 = createSphere(scene, color0, position0)
+object1 = createSphere(scene, color1, position1)
+object2 = createSphere(scene, color2, position2)
+object3 = createSphere(scene, color3, position3)
+object4 = createSphere(scene, color4, position4)
+let pointLight0,pointLight1,pointLight2,pointLight3,pointLight4;
+pointLight0 = createLight( color0 );
+pointLight1 = createLight( color1 );
+pointLight2 = createLight( color2 );
+pointLight3 = createLight( color3 );
+pointLight4 = createLight( color4 );
+scene.add( object0,object1,object2,object3,object4 )
+scene.add( pointLight0,pointLight1,pointLight2,pointLight3,pointLight4 );
+// raycaster
 const raycaster = new THREE.Raycaster()
-// const rayorigin = new THREE.Vector3(-3,0,0)
-// const raydirection = new THREE.Vector3(10,0,0)
-// raydirection.normalize()
-
-// raycaster.set(rayorigin,raydirection)
-
-// const intersect = raycaster.intersectObjects([object1,object2,object3])
-//console.log(intersect)
 
 
-/**
- * Sizes
- */
-
-
-window.addEventListener('resize', () =>
-{
-    // Update sizes
-    sizes.width = window.innerWidth
-    sizes.height = window.innerHeight
-
-    // Update camera
-    camera.aspect = sizes.width / sizes.height
-    camera.updateProjectionMatrix()
-
-    // Update renderer
-    renderer.setSize(sizes.width, sizes.height)
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
-})
-
-/**
- * mouse
- */
-
-const mouse = new THREE.Vector2()
-
-window.addEventListener('mousemove',(event)=>
-{
-    mouse.x = event.clientX/sizes.width*2 - 1
-    mouse.y = -(event.clientY/sizes.height*2 -1)
-    //console.log(mouse.x)
-})
-
-
-var startplay0 = false;
-var stopplay0 = false;
-var count0 = 0;
-
-var startplay1= false;
-var stopplay1 = false;
-var count1 = 0;
-
-var startplay2= false;
-var stopplay2 = false;
-var count2 = 0;
+// audio set up
+let startplay = [false,false,false,false,false]
+let stopplay = [false,false,false,false,false]
+let count = [0,0,0,0,0]
 
 let localSpatialFileBuffer0;
 let localSpatialFileBuffer1;
 let localSpatialFileBuffer2;
+let localSpatialFileBuffer3;
+let localSpatialFileBuffer4;
 
 let localSpatialSoundBuffer0;
 let localSpatialSoundBuffer1;
 let localSpatialSoundBuffer2;
-//当检测到click时,首先判定 currentintersect的长度是否为0/或其他,然后判定是哪个object
-window.addEventListener('click',() =>{
-    //version1 to do
-    if(currentintersect)
-    {
-        if(currentintersect.object === object1)
-        {
-            console.log('click1')
-            count0 += 1;
-            if (count0 % 2 == 1) {
-                startplay0 = true;
+let localSpatialSoundBuffer3;
+let localSpatialSoundBuffer4;
+
+// 3D interaction
+function controlclick(currentintersect) {
+    for (let i = 0; i < 5; i++) {
+        if (currentintersect.object === eval('object' + i)) {
+            console.log('click' + i)
+            count[i] += 1;
+            if (count[i] % 2 == 1) {
+                startplay[i] = true;
             }
             else {
-                stopplay0 = true;
-            }
-        }
-        if(currentintersect.object === object2)
-        {
-            console.log('click0')
-            count1 += 1;
-            if (count1 % 2 == 1) {
-                startplay1 = true;
-            }
-            else {
-                stopplay1 = true;
-            }
-        }
-        if(currentintersect.object === object3)
-        {
-            console.log('click3')
-            count2 += 1;
-            if (count2 % 2 == 1) {
-                startplay2 = true;
-            }
-            else {
-                stopplay2 = true;
+                stopplay[i] = true;
             }
         }
     }
+}
+
+window.addEventListener('click',() =>{
+    if(currentintersect){controlclick(currentintersect)}
 })
 
-
-
-/**
- * Camera
- */
-// Base camera
-const camera = new THREE.PerspectiveCamera(75, sizes.width / sizes.height, 0.1, 100)
-camera.position.z = 10
-scene.add(camera)
-
-// Controls
-const controls = new OrbitControls(camera, canvas)
-controls.enableDamping = true
-
-/**
- * Renderer
- */
-const renderer = new THREE.WebGLRenderer({
-    antialias: true,
-    canvas: canvas
-})
-renderer.setSize(sizes.width, sizes.height)
-renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
-renderer.shadowMap.enabled = true;
-renderer.shadowMap.type = THREE.BasicShadowMap;
-/**
- * Animate
- */
 const clock = new THREE.Clock()
-
 let currentintersect = null
-let voiceEventIndex = [[startplay0,'start',localSpatialSoundBuffer0, localSpatialFileBuffer0]]
+
+function resetposition() {
+    for (let i = 0; i < 5; i++) {
+        let light = eval('pointLight' + i)
+        let theobject = eval('object' + i)
+        let theposition = eval('position' + i)
+        light.position.x = theposition.x
+        light.position.z = -theposition.y
+        light.position.y = theposition.z
+        theobject.position.x = theposition.x
+        theobject.position.z = -theposition.y
+        theobject.position.y = theposition.z
+        theobject.material.color.set(eval('color' + i))
+}}
+function contorlplayorstop() {
+    for (let i=0; i<5; i++) {
+        let thelocalSpatialFileBuffer = eval('localSpatialFileBuffer' + i)
+        let thelocalSpatialSoundBuffer = eval('localSpatialSoundBuffer' + i)
+        if (startplay[i]) {
+            playanyway(thelocalSpatialSoundBuffer, thelocalSpatialFileBuffer, i)
+            startplay[i] = false;
+            console.log(thelocalSpatialFileBuffer)
+        }
+        if (stopplay[i]) {
+            stopanyway(thelocalSpatialSoundBuffer, thelocalSpatialFileBuffer, i)
+            stopplay[i] = false;
+            console.log(stopplay[i])
+        }
+    }
+}
+function onLocalPositionChange() {
+    position0 = {
+        x: parseFloat(xInput0.value),
+        y: parseFloat(yInput0.value),
+        z: parseFloat(zInput0.value)
+    };
+    position1 = {
+        x: parseFloat(xInput1.value),
+        y: parseFloat(yInput1.value),
+        z: parseFloat(zInput1.value)
+    };
+    position2 = {
+        x: parseFloat(xInput2.value),
+        y: parseFloat(yInput2.value),
+        z: parseFloat(zInput2.value)
+    };
+    position3 = {
+        x: parseFloat(xInput3.value),
+        y: parseFloat(yInput3.value),
+        z: parseFloat(zInput3.value)
+    };
+    position4 = {
+        x: parseFloat(xInput4.value),
+        y: parseFloat(yInput4.value),
+        z: parseFloat(zInput4.value)
+    };
+}
 
 const tick = () =>
 {
+    if (oldcounter != changecounter.value) {
+        oldcounter = changecounter.value;
+        onLocalPositionChange();
+    }
     const elapsedTime = clock.getElapsedTime()
-    //animate objects
-    pointLight.position.x = position0.x
-    pointLight.position.z = -position0.y
-    pointLight.position.y = position0.z
 
-    pointLight1.position.x = position1.x
-    pointLight1.position.z = -position1.y
-    pointLight1.position.y = position1.z
+    resetposition()
 
-    pointLight2.position.x = position2.x
-    pointLight2.position.z = -position2.y
-    pointLight2.position.y = position2.z
-    
-    object1.position.x = position0.x
-    object1.position.z = -position0.y
-    object1.position.y = position0.z
-
-    object2.position.x = position1.x
-    object2.position.z = -position1.y
-    object2.position.y = position1.z
-
-    object3.position.x = position2.x
-    object3.position.z = -position2.y
-    object3.position.y = position2.z
-    // object1.position.y = Math.sin(elapsedTime*0.5) * 1.5
-    // object2.position.y = Math.sin(elapsedTime*0.8) * 1.5
-    // object3.position.y = Math.sin(elapsedTime*0.3) * 1.5
-
-    //cast a ray
     raycaster.setFromCamera(mouse,camera)
 
-    const objectstotest = [object1,object2,object3]
+    const objectstotest = [object1,object2,object3,object4,object0]
     const intersects = raycaster.intersectObjects(objectstotest)
-
-    // for(const object of objectstotest)
-    // {
-    //     object.material.color.set('#ff0000')
-    // }
-    object1.material.color.set('#ff0000')
-    object2.material.color.set('#F0E7D8')
-    object3.material.color.set('#3F238F')
-
-    for(const intersect of intersects){
-        intersect.object.material.color.set('#0000ff')
-        //console.log(intersect.object)
-    }
     
-    if(intersects.length)
-    {   
-        //且如果currentintersect里本来没有东西(就是刚刚还没有)
-        if(currentintersect ==null)
-        {
-            console.log('mouse enter')
-        }
-        //把intersect队列的第一个设置为currentintersect(现在currentintersect里有东西了)
-        currentintersect = intersects[0]
-        
+    for(const intersect of intersects){
+        intersect.object.material.color.set('#ff0000')
     }
-    //如果intersect这个队列为0
-    else
-    {
-        //且currentintersct不为0(就是刚刚还有东西来着)
-        if(currentintersect)
-        {
-            console.log('mouse leave')
-        }
-        //(现在没了)
+
+    if(intersects.length){   
+        currentintersect = intersects[0]
+    } else {
         currentintersect = null 
     }
 
-    // Update controls
     controls.update()
-    // Render
     renderer.render(scene, camera)
     
-    if (startplay0) {
-        playanyway(localSpatialSoundBuffer0, localSpatialFileBuffer0, 0)
-        startplay0= false;
-    }
-
-    if (stopplay0) {
-        stopanyway(localSpatialSoundBuffer0, localSpatialFileBuffer0,0)
-        stopplay0 = false;
-    }
-
-    if (startplay1) {
-        playanyway(localSpatialSoundBuffer1, localSpatialFileBuffer1, 1)
-        startplay1 = false;
-    }
-
-    if (stopplay1) {
-        stopanyway(localSpatialSoundBuffer1, localSpatialFileBuffer1, 1)
-        stopplay1 = false;
-    }
-
-    if (startplay2) {
-        playanyway(localSpatialSoundBuffer2, localSpatialFileBuffer2, 2)
-        startplay2 = false;
-    }
-
-    if (stopplay2) {
-        stopanyway(localSpatialSoundBuffer2, localSpatialFileBuffer2, 2)
-        stopplay2 = false;
-    }
-
-    // Call tick again on the next frame
+    contorlplayorstop()
     window.requestAnimationFrame(tick)
 }
-
 tick()
-// const scene = new THREE.Scene()
-// console.log(scene)
-// const camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
-
-// const renderer = new THREE.WebGLRenderer();
-// renderer.setSize( window.innerWidth, window.innerHeight );
-// document.body.appendChild( renderer.domElement );
 
 
-// const geometry = new THREE.BoxGeometry( 1, 1, 1 );
-// const material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
-// const cube = new THREE.Mesh( geometry, material );
-// scene.add( cube );
-
-// camera.position.z = 5;
-
-// function animate() {
-// 	requestAnimationFrame( animate );
-//     cube.rotation.x += 0.01;
-//     cube.rotation.y += 0.01;
-// 	renderer.render( scene, camera );
-// }
-// animate();
-//3d
-
+// _____________________________________________________
+// ________________FROM HERE____________________________
+// __________is all about audio operation_______________
+// audio context set up
 let audioContext;
 const hrtfInputs = new Map();
-let localHrtfInput;
+let localHrtfInput0;
+let localHrtfInput1;
+let localHrtfInput2;
+let localHrtfInput3;
+let localHrtfInput4;
 let hrtfOutput;
 let limiter;
 let audioElement;
 let audioNode;
 const isMetadataSupported = HiFiAudioNodes.isInlineMetadataSupported();
-
-
 
 async function ensureAudioContext() {
     if (audioContext) {
@@ -380,13 +233,21 @@ async function ensureAudioContext() {
     limiter = new HiFiAudioNodes.Limiter(audioContext);
     hrtfOutput.connect(limiter).connect(audioContext.destination);
 
-    localHrtfInput = new HiFiAudioNodes.HRTFInput(audioContext);
-    localHrtfInput.connect(hrtfOutput);
+    localHrtfInput0 = new HiFiAudioNodes.HRTFInput(audioContext);
+    localHrtfInput1 = new HiFiAudioNodes.HRTFInput(audioContext);
+    localHrtfInput2 = new HiFiAudioNodes.HRTFInput(audioContext);
+    localHrtfInput3 = new HiFiAudioNodes.HRTFInput(audioContext);
+    localHrtfInput4 = new HiFiAudioNodes.HRTFInput(audioContext);
+    localHrtfInput0.connect(hrtfOutput);
+    localHrtfInput1.connect(hrtfOutput);
+    localHrtfInput2.connect(hrtfOutput);
+    localHrtfInput3.connect(hrtfOutput);
+    localHrtfInput4.connect(hrtfOutput);
     localSpatialSoundBuffer0 = await audioContext.decodeAudioData(localSpatialFileBuffer0);
     localSpatialSoundBuffer1 = await audioContext.decodeAudioData(localSpatialFileBuffer1);
     localSpatialSoundBuffer2 = await audioContext.decodeAudioData(localSpatialFileBuffer2);
-    console.log('localSpatialSoundBuffer0',localSpatialSoundBuffer0 )
-    
+    localSpatialSoundBuffer3 = await audioContext.decodeAudioData(localSpatialFileBuffer3);
+    localSpatialSoundBuffer4 = await audioContext.decodeAudioData(localSpatialFileBuffer4);
 }
 
 function deleteAudioContext() {
@@ -398,6 +259,18 @@ function deleteAudioContext() {
 
     localHrtfInput.disconnect(hrtfOutput);
     localHrtfInput = null;
+
+    localHrtfInput1.disconnect(hrtfOutput);
+    localHrtfInput1 = null;
+
+    localHrtfInput2.disconnect(hrtfOutput);
+    localHrtfInput2 = null;
+
+    localHrtfInput3.disconnect(hrtfOutput);
+    localHrtfInput3 = null;
+
+    localHrtfInput4.disconnect(hrtfOutput);
+    localHrtfInput4 = null;
 
     hrtfOutput.disconnect(limiter);
     limiter.disconnect(audioContext.destination);
@@ -416,71 +289,6 @@ function deleteAudioContext() {
 }
 
 
-const xInput0 = document.getElementById('x1');
-const yInput0 = document.getElementById('y1');
-const zInput0 = document.getElementById('z1');
-const xInput1 = document.getElementById('x2');
-const yInput1 = document.getElementById('y2');
-const zInput1 = document.getElementById('z2');
-const xInput2 = document.getElementById('x3');
-const yInput2 = document.getElementById('y3');
-const zInput2 = document.getElementById('z3');
-
-
-
-xInput0.addEventListener('change', () => {
-    onLocalPositionChange();
-});
-yInput0.addEventListener('change', () => {
-    onLocalPositionChange();
-});
-zInput0.addEventListener('change', () => {
-    onLocalPositionChange();
-})
-xInput1.addEventListener('change', () => {
-    onLocalPositionChange();
-});
-yInput1.addEventListener('change', () => {
-    onLocalPositionChange();
-});
-zInput1.addEventListener('change', () => {
-    onLocalPositionChange();
-})
-xInput2.addEventListener('change', () => {
-    onLocalPositionChange();
-});
-yInput2.addEventListener('change', () => {
-    onLocalPositionChange();
-});
-zInput2.addEventListener('change', () => {
-    onLocalPositionChange();
-})
-// oInput1.addEventListener('change', () => {
-//     onLocalPositionChange();
-// });
-
-
-function onLocalPositionChange() {
-    position0 = {
-        x: parseFloat(xInput0.value),
-        y: parseFloat(yInput0.value),
-        z: parseFloat(zInput0.value)
-    };
-    position1 = {
-        x: parseFloat(xInput1.value),
-        y: parseFloat(yInput1.value),
-        z: parseFloat(zInput1.value)
-    };
-    position2 = {
-        x: parseFloat(xInput2.value),
-        y: parseFloat(yInput2.value),
-        z: parseFloat(zInput2.value)
-    };
-    console.log('Local position1:', position1, 'Local position2:', position2, 'Local position0:', position0);
-    // updatehrtfoutputposition1(position1)
-    // updatehrtfoutputposition2(position2)
-    // updatehrtfoutputposition0(position0)
-    }
 
 
 
@@ -516,6 +324,173 @@ function remoteUserPositionCallback(userID, x, y, o) {
         updateRelativePosition(hrtfInput);
     }
 }
+
+
+
+async function playanyway(localspatialsound, localspatialfile, positionindex) {
+    console.log('play anyway');
+    playspatial(true, localspatialsound, localspatialfile, positionindex);
+}
+async function stopanyway(localspatialsound, localspatialfile, positionindex) {
+    console.log('play anyway');
+    playspatial(false, localspatialsound, localspatialfile, positionindex);
+}
+
+let localSpatialSound;
+
+
+async function loadSound(url) {
+    const response = await fetch(url);
+    return response.arrayBuffer();
+}
+
+async function loadSoundBuffers() {
+    console.log("sound4",soundMap[names[0]])
+    localSpatialFileBuffer0 = await loadSound(soundMap[names[0]]);
+    localSpatialFileBuffer1 = await loadSound(soundMap[names[1]]);
+    localSpatialFileBuffer2 = await loadSound(soundMap[names[2]]);
+    localSpatialFileBuffer3 = await loadSound(soundMap[names[3]]);
+    localSpatialFileBuffer4 = await loadSound(soundMap[names[4]]);
+}
+async function loadSoundBuffers1() {
+    
+}
+async function loadSoundBuffers2() {
+    
+}
+async function loadSoundBuffers3() {
+    
+}
+async function loadSoundBuffers4() {
+    
+}
+
+async function playspatial(play, soundbuffer, filebuffer, positionindex){
+    if (play) {
+        await ensureAudioContext();
+        localSpatialSound = new AudioBufferSourceNode(audioContext);
+        localSpatialSound.buffer = soundbuffer;
+        localSpatialSound.loop = true;
+        let currentposition;
+        if (positionindex == 0) {
+            localSpatialSound.connect(localHrtfInput0);
+            currentposition = position0;
+            const azimuth = Math.random() * 2 * Math.PI;
+            const distance = 5;
+            localHrtfInput0.setPosition(azimuth, distance);
+            localHrtfInput0.x = currentposition.x
+            localHrtfInput0.y = currentposition.y
+            updateRelativePosition(localHrtfInput0);
+            localSpatialSound.start();
+        }
+        else if (positionindex == 1) {
+            currentposition = position1;
+            localSpatialSound.connect(localHrtfInput1);
+            const azimuth = Math.random() * 2 * Math.PI;
+            const distance = 5;
+            localHrtfInput1.setPosition(azimuth, distance);
+            localHrtfInput1.x = currentposition.x
+            localHrtfInput1.y = currentposition.y
+            updateRelativePosition(localHrtfInput1);
+            localSpatialSound.start();}
+        else if (positionindex == 2) {
+            currentposition = position2;
+            localSpatialSound.connect(localHrtfInput2);
+            const azimuth = Math.random() * 2 * Math.PI;
+            const distance = 5;
+            localHrtfInput2.setPosition(azimuth, distance);
+            localHrtfInput2.x = currentposition.x
+            localHrtfInput2.y = currentposition.y
+            updateRelativePosition(localHrtfInput2);
+            localSpatialSound.start();
+        }
+        else if (positionindex == 3) {
+            currentposition = position3;
+            localSpatialSound.connect(localHrtfInput3);
+            const azimuth = Math.random() * 2 * Math.PI;
+            const distance = 5;
+            localHrtfInput3.setPosition(azimuth, distance);
+            localHrtfInput3.x = currentposition.x
+            localHrtfInput3.y = currentposition.y
+            console.log(localHrtfInput3);
+            updateRelativePosition(localHrtfInput3);
+            localSpatialSound.start();
+        }
+        else if (positionindex == 4) {
+            currentposition = position4;
+            localSpatialSound.connect(localHrtfInput4);
+            const azimuth = Math.random() * 2 * Math.PI;
+            const distance = 5;
+            localHrtfInput4.setPosition(azimuth, distance);
+            localHrtfInput4.x = currentposition.x
+            localHrtfInput4.y = currentposition.y
+            updateRelativePosition(localHrtfInput4);
+            localSpatialSound.start();
+        }
+
+
+    } else {
+        localSpatialSound.stop();
+        if (positionindex == 0) {
+            localSpatialSound.disconnect(localHrtfInput0);
+        }
+        else if (positionindex == 1) {
+            localSpatialSound.disconnect(localHrtfInput1);
+        }
+        else if (positionindex == 2) {
+            localSpatialSound.disconnect(localHrtfInput2);
+        }
+        else if (positionindex == 3) {
+            localSpatialSound.disconnect(localHrtfInput3);
+        }
+        else if (positionindex == 4) {
+            localSpatialSound.disconnect(localHrtfInput4);
+        }
+        localSpatialSound = null;
+    }
+}
+
+async function load() {
+    console.log('load');
+    loadSoundBuffers(); 
+}
+
+function unload() {
+    console.log('unload');
+
+    if (localSpatialSound) {
+        playspatial(false,None,None);
+        playspatial(false,None,None);
+    }
+
+    deleteAudioContext();
+}
+
+load();
+window.addEventListener('beforeunload', unload); 
+
+
+
+
+
+// function controlplay() {
+//     for (let i = 0; i < 5; i++) {
+//         let start = eval('startplay' + i)
+//         let stop = eval('stopplay' + i)
+//         let thelocalSpatialSoundBuffer = eval('localSpatialSoundBuffer' + i)
+//         let thelocalSpatialFileBuffer = eval('localSpatialFileBuffer' + i)
+//         if (start) {
+//             start.value = false;
+//             console.log(start)
+//         }
+//         if (stop == true) {
+//             // stopanyway(thelocalSpatialSoundBuffer, thelocalSpatialFileBuffer, i)
+//             // stop = false;
+//             // console.log(stop)
+//         }
+//     }
+// }
+
 
 // const playSpatialButton = document.getElementById('play-spatial');
 // const stopSpatialButton = document.getElementById('stop-spatial');
@@ -556,94 +531,3 @@ function remoteUserPositionCallback(userID, x, y, o) {
 //     stopSpatialButton.setAttribute('disabled', 'disabled');
 //     playSpatial_1(false);
 // }
-
-async function playanyway(localspatialsound, localspatialfile, positionindex) {
-    console.log('play anyway');
-    // playSpatialButton.setAttribute('disabled', 'disabled');
-    // stopSpatialButton.removeAttribute('disabled');
-    playspatial(true, localspatialsound, localspatialfile, positionindex);
-}
-async function stopanyway(localspatialsound, localspatialfile, positionindex) {
-    console.log('play anyway');
-    // playSpatialButton.setAttribute('disabled', 'disabled');
-    // stopSpatialButton.removeAttribute('disabled');
-    playspatial(false, localspatialsound, localspatialfile, positionindex);
-}
-
-let localSpatialSound;
-
-
-async function loadSound(url) {
-    const response = await fetch(url);
-    return response.arrayBuffer();
-}
-
-async function loadSoundBuffers0() {
-    localSpatialFileBuffer0 = await loadSound('car.wav');
-    console.log('localSpatialFileBuffer0',localSpatialFileBuffer0 )
-    // playSpatialButton.removeAttribute('disabled');
-}
-async function loadSoundBuffers1() {
-    localSpatialFileBuffer1 = await loadSound('dog.wav');
-    // playSpatialButton.removeAttribute('disabled');
-}
-async function loadSoundBuffers2() {
-    localSpatialFileBuffer2 = await loadSound('walk.wav');
-    // playSpatialButton.removeAttribute('disabled');
-}
-
-async function playspatial(play, soundbuffer, filebuffer, positionindex){
-    if (play) {
-        await ensureAudioContext();
-        let currentposition;
-        if (positionindex == 0) {
-            currentposition = position0;}
-        else if (positionindex == 1) {
-            currentposition = position1;}
-        else if (positionindex == 2) {
-            currentposition = position2;
-        }
-        localSpatialSound = new AudioBufferSourceNode(audioContext);
-        localSpatialSound.buffer = soundbuffer;
-        localSpatialSound.loop = true;
-        localSpatialSound.connect(localHrtfInput);
-
-        const azimuth = Math.random() * 2 * Math.PI;
-        const distance = 5;
-        localHrtfInput.setPosition(azimuth, distance);
-        localHrtfInput.x = currentposition.x
-        localHrtfInput.y = currentposition.y
-        // localHrtfInput.x = position.x + distance * Math.sin(-azimuth);
-        // localHrtfInput.y = position.y + distance * Math.cos(-azimuth);
-        // localHrtfInput.o = position.z
-        console.log(localHrtfInput);
-        updateRelativePosition(localHrtfInput);
-        localSpatialSound.start();
-    } else {
-        localSpatialSound.stop();
-        localSpatialSound.disconnect(localHrtfInput);
-        localSpatialSound = null;
-    }
-}
-
-async function load() {
-    console.log('load');
-    loadSoundBuffers0(); 
-    loadSoundBuffers1() // Don't wait for this to complete.
-    loadSoundBuffers2();
-}
-
-function unload() {
-    console.log('unload');
-
-    if (localSpatialSound) {
-        playspatial(false,None,None);
-        playspatial(false,None,None);
-    }
-
-    deleteAudioContext();
-}
-
-load();
-window.addEventListener('beforeunload', unload); 
-
