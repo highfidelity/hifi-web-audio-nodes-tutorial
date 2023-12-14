@@ -15,9 +15,69 @@ import soundMap from './SoundMap.js';
 import setupButtons from './setupButtons.js';
 //data input
 
-console.log(localStorage.getItem('results'))
+const data = localStorage.getItem('results')
+function tokenizeData(dataString) {
+    const dataMap = new Map();
+
+    // Trim the string to remove trailing spaces and semicolons, then split into objects
+    const objects = dataString.trim().split('; ');
+
+    objects.forEach(obj => {
+        // Check if the object string is empty
+        if (obj.trim() === '') {
+            return;
+        }
+
+        // Extract the object label and properties
+        const parts = obj.split(': ');
+        const label = parts.shift(); // Get the first element as label
+
+        // Join back the remaining parts and split into key-value pairs
+        const keyValuePairs = parts.join(': ').split(', ').map(prop => {
+            const [key, value] = prop.split(': ');
+            return [key.trim(), isNaN(value) ? value.trim() : parseFloat(value)];
+        });
+
+        // Add to the map
+        dataMap.set(label.trim(), Object.fromEntries(keyValuePairs));
+    });
+
+    return dataMap;
+}
+
+// Example usage
+// const dataString = "Object 1: X: 0.16, Y: 0.56, Z: 0.31, Sound: car_horn, Object 2: X: 0.59, Y: 0.52, Z: 0.62, Sound: cat, Object 3: X: 0.51, Y: 0.75, Z: 0.77, Sound: dog";
+// console.log(data);
+// const testdata = "Object 1: X: 0.16, Y: 0.56, Z: 0.31, Sound: car_horn; Object 2: X: 0.59, Y: 0.52, Z: 0.62, Sound: cat; Object 3: X: 0.51, Y: 0.75, Z: 0.77, Sound: dog"
+const parsedData = tokenizeData(data);
+let names = []
+let positions = []
+function scale (number, inMin, inMax, outMin, outMax) {
+    return (number - inMin) * (outMax - outMin) / (inMax - inMin) + outMin;
+}
+console.log(parsedData)
+for (let [key, value] of parsedData) {
+    // if the name is already in the names list, continue
+    // if (names.includes(value.Sound)) {
+    //     continue;
+    // } else 
+    if (value.Sound == 'cat' || value.Sound == 'cat;' ) {
+        names.push('footsteps')
+    } else if(value.Sound == 'indoors'){
+        names.push('busy-street-outdoor')
+    }else {
+    names.push(value.Sound)}
+    // positions.push({x:value.X,y:value.Y,z:value.Z})
+    positions.push({ x: scale(value.X,0,1,-15,15), y: scale(value.Z,0,1,-15,15), z: scale(value.Y,0,1,-15,15) })
+    if (names.length == 5) {
+        break
+    }
+}
+console.log(names);
+console.log(positions)
+
 let demo_map = {'laughing':(0.49,0.58,0.23)}
-let names = ['glass_breaking','frog','dog','laughing','baby']
+// let names = ['glass_breaking','frog','dog','laughing','baby']
 
 function getaudiobyname(name){
     let sound = soundMap[name]
@@ -26,11 +86,12 @@ function getaudiobyname(name){
 
 
 let position = { x: 0, y: 0, o: 0 };
-let position0 = { x: -4.5, y: 0.95, z: 0.5 };
-let position1 = { x: 0, y: -2.25, z: -1 };
-let position2 = { x: 0.5, y: -0.75, z: 0 };
-let position3 = { x: 0, y: 0, z: 0 };
-let position4 = { x: 1, y: 2, z: 3 };
+
+let position0 = positions[0];
+let position1 = positions[1];
+let position2 = positions[2];
+let position3 = positions[3];
+let position4 = positions[4];
 //some stable variable 
 let color0= '#bea6f5', color1 = '#1363DF', color2 = '#f5e595', color3 = '#E966A0', color4 = '#00FFCA';
 //all about the 2d interfaces =
@@ -38,13 +99,19 @@ const { xInput0,yInput0,zInput0,
         xInput1,yInput1,zInput1,
         xInput2,yInput2,zInput2,
         xInput3,yInput3,zInput3,
-        xInput4,yInput4,zInput4 } = setupButtons(document,names);
+        xInput4,yInput4,zInput4 } = setupButtons(document,names,positions);
 let changecounter = document.getElementById('counter');
 let oldcounter = 0;
 
 //all about the 3d setup
 const canvas = document.querySelector('canvas.webgl')
 const {scene, sizes, camera, controls, mouse, renderer} = setupscene(canvas)
+
+
+let objecthuman = new THREE.Mesh(new THREE.BoxGeometry(1,1,1),new THREE.MeshBasicMaterial({color:0x00ff00}))
+objecthuman.position.set(position.x,position.o,position.y)
+scene.add(objecthuman)
+
 let object0,object1,object2,object3,object4;
 object0 = createSphere(scene, color0, position0)
 object1 = createSphere(scene, color1, position1)
@@ -57,7 +124,7 @@ pointLight1 = createLight( color1 );
 pointLight2 = createLight( color2 );
 pointLight3 = createLight( color3 );
 pointLight4 = createLight( color4 );
-scene.add( object0,object1,object2,object3,object4 )
+scene.add( object0,object1,object2,object3,object4,objecthuman  )
 scene.add( pointLight0,pointLight1,pointLight2,pointLight3,pointLight4 );
 // raycaster
 const raycaster = new THREE.Raycaster()
@@ -109,13 +176,17 @@ function resetposition() {
         let theobject = eval('object' + i)
         let theposition = eval('position' + i)
         light.position.x = theposition.x
-        light.position.z = -theposition.y
+        light.position.z = theposition.y
         light.position.y = theposition.z
         theobject.position.x = theposition.x
-        theobject.position.z = -theposition.y
+        theobject.position.z = theposition.y
         theobject.position.y = theposition.z
         theobject.material.color.set(eval('color' + i))
-}}
+    }
+    objecthuman.position.x = position.x
+    objecthuman.position.z = position.y
+    objecthuman.position.y = position.o
+}
 function contorlplayorstop() {
     for (let i=0; i<5; i++) {
         let thelocalSpatialFileBuffer = eval('localSpatialFileBuffer' + i)
@@ -157,6 +228,11 @@ function onLocalPositionChange() {
         x: parseFloat(xInput4.value),
         y: parseFloat(yInput4.value),
         z: parseFloat(zInput4.value)
+    };
+    position = {
+        x: -parseFloat(xhuman.value),
+        y: parseFloat(yhuman.value),
+        o: parseFloat(zhuman.value)
     };
 }
 

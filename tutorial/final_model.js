@@ -106,7 +106,10 @@ let allSoundKeys = [];
 
 // Function to create and display sound buttons
 function createSoundButton(soundName) {
-
+    if (soundName === 'indoors') {
+        soundName = 'outdoors'
+    }
+    
     const soundKey = soundName.replace(/ /g, '_');
     allSoundKeys.push(soundKey);
 
@@ -129,7 +132,7 @@ function createSoundButton(soundName) {
 
 // // Function to play a sound
 // function playSound(soundKey) {
-//     const audio = new Audio(soundMap[gf4soundKey]);
+//     const audio = new Audio(soundMap[soundKey]);
 //     audio.play();
 //     console.log(`Playing Sound: ${soundKey}`);
 // }
@@ -155,10 +158,8 @@ document.getElementById('play-all').addEventListener('click', playAllSounds);
 const footstepsSoundKey = 'footsteps'
 
 fileUpload.addEventListener('change', async function (e) {
-    console.log('File upload detected.');
-    
     try {
-
+        let results = "";
         const file = e.target.files[0];
         if (!file) {
             return;
@@ -233,15 +234,10 @@ fileUpload.addEventListener('change', async function (e) {
                         const mostSimilarSound = await findMostSimilarSound(captionText, label);
 
                         // Log x, y, z coordinates and caption text to the console
-                        // console.log(`Object ${i + 1}: X: ${x.toFixed(2)}, Y: ${y.toFixed(2)}, Z: ${z}, Sound: ${mostSimilarSound}`);
-                        let result = new Map();
-                        result.set('x', x.toFixed(2));
-                        result.set('y', y.toFixed(2));
-                        result.set('z', z);
-                        result.set('sound', mostSimilarSound);
-                        // let result = "X: ${x.toFixed(2)}, Y: ${y.toFixed(2)}, Z: ${z}, Sound: ${mostSimilarSound}";
-                        results.set(i, result)
+                        let result = `Object ${i + 1}: X: ${x.toFixed(2)}, Y: ${y.toFixed(2)}, Z: ${z}, Sound: ${mostSimilarSound}; `
                         console.log(result);
+                        results += result ;
+
                         // Check if the sound is unique and create a button if it is
                         if (!selectedSounds.has(mostSimilarSound)) {
                             createSoundButton(mostSimilarSound);
@@ -254,14 +250,17 @@ fileUpload.addEventListener('change', async function (e) {
                             createSoundButton('footsteps');
                         }
                     }
-
-                    reader.readAsDataURL(file);
+                    console.log(results);
+                    localStorage.setItem('results', results);
+                    status.textContent = 'Done';
                 };
             } catch (err) {
                 console.error('Error in processing:', err);
                 status.textContent = 'Error in processing.';
             }
         };
+
+        reader.readAsDataURL(file);
     } catch (err) {
         console.error('Error on file upload:', err);
         status.textContent = 'Error on file upload.';
@@ -328,6 +327,3 @@ function calculateZ(depthData, box) {
 
     return normalizedZ.toFixed(2);
 }
-
-
-

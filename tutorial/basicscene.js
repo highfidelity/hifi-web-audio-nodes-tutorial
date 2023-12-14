@@ -7,8 +7,8 @@ export default function setupscene (canvas){
   const canva = canvas
   scene.background = new THREE.Color(0x000000)
   const sizes = {
-    width: window.innerWidth*0.75,
-    height: window.innerHeight*0.9
+    width: window.innerWidth*0.85,
+    height: window.innerHeight,
 }
   const camera = new THREE.PerspectiveCamera(75, sizes.width / sizes.height, 0.1, 100)
 camera.position.z = 10
@@ -44,8 +44,8 @@ const controls = new OrbitControls(camera, canva)
 controls.enableDamping = true
   
   createTextGeometry('X',scene,[14,-10,-15])
-  createTextGeometry('Y',scene,[-15,9,-15])
-  createTextGeometry('Z',scene,[-15,-10,14])
+  createTextGeometry('Z',scene,[-15,9,-15])
+  createTextGeometry('Y',scene,[-15,-10,14])
   const axis1 = new THREE.CylinderGeometry( 0.1, 0.1, 19, 15 ); 
   const axis2 = new THREE.CylinderGeometry( 0.1, 0.1, 29, 15 );
   const axis3 = new THREE.CylinderGeometry( 0.1, 0.1, 19, 15 );
