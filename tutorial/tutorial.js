@@ -96,15 +96,19 @@ function deleteAudioContext() {
     noiseSuppression.disconnect(gatedNode);
     microphoneStream = null;
     microphoneNode = null;
+    noiseSuppression.destroy();
     noiseSuppression = null;
     gatedNode = null;
 
     localHrtfInput.disconnect(hrtfOutput);
+    localHrtfInput.destroy();
     localHrtfInput = null;
 
     hrtfOutput.disconnect(limiter);
     limiter.disconnect(audioContext.destination);
+    hrtfOutput.destroy();
     hrtfOutput = null;
+    limiter.destroy();
     limiter = null;
 
     HiFiAudioNodes.shutdownHRTF();
@@ -215,6 +219,7 @@ function onUserUnpublished(user) {
     if (hrtfInputs.has(user.uid)) {
         const hrtfInput = hrtfInputs.get(user.uid);
         hrtfInput.disconnect(hrtfOutput);
+        hrtfInput.destroy();
         hrtfInputs.delete(user.uid);
     }
     console.log('Remote user', user.uid, 'left the channel');
